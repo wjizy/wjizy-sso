@@ -23,16 +23,12 @@ class SsoController extends Controller
             return response()->json('fail', 405);
         }
         header('P3P: CP="CAO PSA OUR"');
-        if(isset($_COOKIE[self::COOKIE_KEY]) && $_COOKIE[self::COOKIE_KEY]){
-            $data = [
-                'ssoid' => $_COOKIE[self::COOKIE_KEY],
-                'appid' => $_COOKIE['appid'] ?? '',
-                'uid'   => $_COOKIE['uid'] ?? 0,
-            ];
-            $sign = self::authCode(json_encode($data), 'ENCODE', self::SALT, self::SIGN_EXPIRE);
-        }else{
-            $sign = self::authCode('', 'ENCODE', self::SALT, self::SIGN_EXPIRE);
-        }
+        $data = [
+            'ssoid' => $_COOKIE[self::COOKIE_KEY] ?? '',
+            'appid' => $_COOKIE['appid'] ?? '',
+            'uid'   => $_COOKIE['uid'] ?? 0,
+        ];
+        $sign = self::authCode(json_encode($data), 'ENCODE', self::SALT, self::SIGN_EXPIRE);
         header('Location:'.$app['set_cookie_url'].'?sign='.urlencode($sign));
     }
 
@@ -45,6 +41,9 @@ class SsoController extends Controller
     public function getSsoId($token, Request $request)
     {
         $ssoid = self::authCode(urldecode($token), 'DECODE', self::SALT, self::SIGN_EXPIRE);
+        if(!$ssoid){
+            return self::responseJson(false, 10009);
+        }
         return self::responseJson($ssoid);
     }
 

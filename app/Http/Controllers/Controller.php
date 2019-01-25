@@ -43,6 +43,7 @@ class Controller extends BaseController
             '10006' => '登录信息不存在或已过期',
             '10007' => '姿势不对~',
             '10008' => '账号不对应',
+            '10009' => 'sign错误或者已过期',
         ];
         return isset($code[$number]) ? $code[$number] : '未知错误';
     }
